@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import Phaser from 'phaser';
+import { BoatController } from './Input/BoatController';
+import { IController } from './Interfaces/IController';
 
 @Component({
   selector: 'app-game',
@@ -33,14 +35,17 @@ export class GameComponent implements OnInit{
 class MainScene extends Phaser.Scene {
 
   private sqObject!: Phaser.GameObjects.Rectangle & { body: Phaser.Physics.Arcade.Body };
+  private controller!: IController;
 
   constructor() {
     super({ key: 'main' });
   }
 
   create() {
-    this.sqObject = this.add.rectangle(400,400, 100, 100, 0xffffff) as any;
-    this.physics.add.existing(this.sqObject);
+    this.controller = new BoatController();
+    this.controller.input = this.input.keyboard.createCursorKeys();
+    this.controller.sprite = this.add.rectangle(400, 400, 80, 30, 0xffffff) as any;
+    this.physics.add.existing(this.controller.sprite);
   }
 
   preload() {
@@ -48,21 +53,6 @@ class MainScene extends Phaser.Scene {
   }
 
   override update() {
-    const keys = this.input.keyboard.createCursorKeys();
-    if(keys.up.isDown){
-      this.sqObject.body.setVelocityY(-500);
-    }else if(keys.down.isDown){
-      this.sqObject.body.setVelocityY(500);
-    }else{
-      this.sqObject.body.setVelocityY(0);
-    }
-
-    if(keys.left.isDown){
-      this.sqObject.body.setAccelerationX(-500);
-    }else if(keys.right.isDown){
-      this.sqObject.body.setAccelerationX(500);
-    }else{
-      this.sqObject.body.setAccelerationX(0);
-    }
+    this.controller.move();
   }
 }
